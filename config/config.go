@@ -17,12 +17,13 @@ type Configuration struct {
 	}
 	Token   string
 	Storage struct {
-		Atlas    bool
-		User     string
-		Pass     string
-		Host     string
-		Port     string
-		Database string
+		Atlas            bool
+		User             string
+		Pass             string
+		Host             string
+		Port             string
+		Database         string
+		ConnectionString string
 	}
 	WebSocket struct {
 		Token string

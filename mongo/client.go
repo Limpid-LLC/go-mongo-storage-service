@@ -39,20 +39,26 @@ func NewMongoClient(config config.Configuration) (Client, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	switch config.Storage.Atlas {
-	case false:
-		{
-			host, _ = mongo.NewClient(options.Client().ApplyURI(
-				"mongodb://" + config.Storage.Host + ":" + config.Storage.Port + "/" + config.Storage.Database,
-			))
+	if config.Storage.ConnectionString != "" {
+		host, _ = mongo.NewClient(options.Client().ApplyURI(config.Storage.ConnectionString))
 
-			hostErr = host.Connect(ctx)
-		}
-	default:
-		{
-			host, hostErr = mongo.Connect(ctx, options.Client().ApplyURI(
-				"mongodb+srv://"+config.Storage.User+":"+config.Storage.Pass+"@"+config.Storage.Host+"/"+config.Storage.Database+"?ssl=true&authSource=admin&retryWrites=true&w=majority",
-			))
+		hostErr = host.Connect(ctx)
+	} else {
+		switch config.Storage.Atlas {
+		case false:
+			{
+				host, _ = mongo.NewClient(options.Client().ApplyURI(
+					"mongodb://" + config.Storage.Host + ":" + config.Storage.Port + "/" + config.Storage.Database,
+				))
+
+				hostErr = host.Connect(ctx)
+			}
+		default:
+			{
+				host, hostErr = mongo.Connect(ctx, options.Client().ApplyURI(
+					"mongodb+srv://"+config.Storage.User+":"+config.Storage.Pass+"@"+config.Storage.Host+"/"+config.Storage.Database+"?ssl=true&authSource=admin&retryWrites=true&w=majority",
+				))
+			}
 		}
 	}
 
