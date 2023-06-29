@@ -13,6 +13,7 @@ WORKDIR /srv
 
 # Copy binary from build stage
 COPY --from=BUILD /src/service-bin /srv/service-bin
+COPY --from=BUILD /src/config.json /srv/config.json
 
 RUN chmod +x /srv/service-bin
 
