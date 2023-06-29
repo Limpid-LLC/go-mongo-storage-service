@@ -1,0 +1,95 @@
+name: Deploy to EKS
+
+on:
+  #push:
+    #branches:
+    #  - main
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      config-path:
+        required: true
+        type: string
+    secrets:
+      token:
+        required: true  
+env:
+  IMAGE_NAME: ${{ vars.AWS_ECR }}/${{ github.event.repository.name }}
+  SERVICE_NAME: ${{ github.event.repository.name }}
+  NAMESPACE_NAME: ${{ vars.NAMESPACE_NAME}}
+  IMAGE_TAG: latest
+  AWS_ECR: ${{ vars.AWS_ECR }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: ${{ vars.AWS_DEFAULT_REGION }}
+jobs:
+  build-and-push-to-ecr:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.17.0'
+
+      - name: go version    
+        run: go version
+
+      - name: Login to docker registry
+        run: |
+          aws ecr get-login-password --region ${{env.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{ env.AWS_ECR }}
+          aws ecr describe-repositories --repository-names ${{env.SERVICE_NAME}} || aws ecr create-repository --image-tag-mutability MUTABLE --repository-name ${{env.SERVICE_NAME}}
+
+      - name: Build image
+        run: |
+          go get
+          docker build --pull --progress plain -t ${{env.IMAGE_NAME}} .
+          docker push ${{env.IMAGE_NAME}}
+
+  deploy-to-eks:
+    needs: build-and-push-to-ecr
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_DEFAULT_REGION }}
+
+      - name: Check AWS identity    
+        run: aws sts get-caller-identity
+
+      - name: setup eksctl
+        run: |
+          ARCH=amd64
+          PLATFORM=$(uname -s)_$ARCH
+          curl -sLO "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+          tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
+          sudo mv /tmp/eksctl /usr/bin
+          eksctl version
+
+      - name: save EKS kubeconfig
+        run: eksctl utils write-kubeconfig --cluster=${{ vars.AWS_EKS_CLUSTER }}
+
+      - name: Kubectl
+        run: kubectl get nodes
+
+      - name: inject environment
+        run: |
+          env
+          cat manifests/deployment-template.yml | envsubst > manifests/deployment.yml
+          cat manifests/ports.yml >> manifests/deployment.yml
+          cat manifests/deployment.yml
+
+      - name: Kubectl deploy
+        run: |
+          kubectl apply -f manifests/deployment.yml
+          kubectl -n ${{env.NAMESPACE_NAME}} get deployments
+    
