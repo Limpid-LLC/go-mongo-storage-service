@@ -14,7 +14,7 @@
         "Host": "",
         "Port": "27017",
         "Database": "sai",
-        "ConnectionString": "mongodb://databasesupervisor:bfz!ZCM!zpt2cmk.eva@docdb-2023-06-27-09-43-01.cluster-cwivb31yqdxb.eu-central-1.docdb.amazonaws.com:27017/?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
+        "ConnectionString": "mongodb://databasesupervisor:bfz!ZCM!zpt2cmk.eva@docdb-f1xiq.cluster-cwivb31yqdxb.eu-central-1.docdb.amazonaws.com:27017/?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
     },
     "Token": "12345",
     "WebSocket": {
