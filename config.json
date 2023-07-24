@@ -1,11 +1,11 @@
 {
     "HttpServer": {
         "Host": "0.0.0.0",
-        "Port": "8801"
+        "Port": "8901"
     },
     "HttpsServer": {
         "Host": "0.0.0.0",
-        "Port": "8802"
+        "Port": "8902"
     },
     "Storage": {
         "Atlas": false,
@@ -13,7 +13,7 @@
         "Pass": "",
         "Host": "",
         "Port": "27017",
-        "Database": "test",
+        "Database": "auth",
         "ConnectionString": "mongodb://databasesupervisor:bfz!ZCM!zpt2cmk.eva@docdb-f1xiq.cluster-cwivb31yqdxb.eu-central-1.docdb.amazonaws.com:27017/?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
     },
     "Token": "12345",
