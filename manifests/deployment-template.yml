@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ${SERVICE_NAME}-deploy
+  name: ${SERVICE_NAME}-auth-deploy
   namespace: ${NAMESPACE_NAME}
   labels:
-    app: ${SERVICE_NAME}
+    app: ${SERVICE_NAME}-auth
 spec:
   replicas: ${REPLICAS}
   selector:
     matchLabels:
-      app: ${SERVICE_NAME}
+      app: ${SERVICE_NAME}-auth
   template:
     metadata:
       labels:
-        app: ${SERVICE_NAME}
+        app: ${SERVICE_NAME}-auth
     spec:
       containers:
-      - name: ${SERVICE_NAME}-microservice
+      - name: ${SERVICE_NAME}-auth-microservice
         image: ${IMAGE_NAME}
         ports:
 

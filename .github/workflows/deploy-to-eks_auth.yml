@@ -8,7 +8,7 @@ on:
 
 env:
   IMAGE_NAME: ${{ vars.AWS_ECR }}/${{ github.event.repository.name }}
-  SERVICE_NAME: ${{ github.event.repository.name }}-auth
+  SERVICE_NAME: ${{ github.event.repository.name }}
   NAMESPACE_NAME: ${{ vars.NAMESPACE_NAME}}
   IMAGE_TAG: latest
   AWS_ECR: ${{ vars.AWS_ECR }}
