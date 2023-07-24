@@ -108,7 +108,7 @@ func (s Server) handleConnections(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	if !s.Config.UsePermissionAuth {
+	if s.Config.UsePermissionAuth {
 		if !s.hasAccess(r) {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Header().Set("Content-Type", "application/json")
