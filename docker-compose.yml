@@ -4,8 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 8901:8901
-      - 8902:8902
+      - 8701:8701
+      - 8702:8702
 #    depends_on:
 #      - mongo-db
     volumes:

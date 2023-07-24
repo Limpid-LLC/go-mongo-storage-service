@@ -1,11 +1,11 @@
 {
     "HttpServer": {
         "Host": "0.0.0.0",
-        "Port": "8901"
+        "Port": "8701"
     },
     "HttpsServer": {
         "Host": "0.0.0.0",
-        "Port": "8902"
+        "Port": "8702"
     },
     "Storage": {
         "Atlas": false,

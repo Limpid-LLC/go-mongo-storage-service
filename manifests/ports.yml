@@ -1,4 +1,4 @@
         - name: http
-          containerPort: 8901
+          containerPort: 8701
         - name: ws
-          containerPort: 8902
+          containerPort: 8702
