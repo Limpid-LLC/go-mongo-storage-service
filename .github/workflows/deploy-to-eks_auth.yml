@@ -1,4 +1,4 @@
-name: Deploy to EKS
+name: Deploy to EKS AUTH
 
 on:
    push:
@@ -81,7 +81,7 @@ jobs:
         run: |
           env
           cat manifests/deployment-template.yml | envsubst > manifests/deployment.yml
-          cat manifests/ports_auth.yml >> manifests/deployment.yml
+          cat manifests/ports.yml >> manifests/deployment.yml
           cat manifests/deployment.yml
 
       - name: Kubectl deploy
