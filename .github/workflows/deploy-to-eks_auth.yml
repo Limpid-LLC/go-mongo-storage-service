@@ -1,9 +1,9 @@
 name: Deploy to EKS AUTH
 
 on:
-#   push:
-#     branches:
-#       - "stage_auth"
+  push:
+    branches:
+      - stage_auth
   workflow_dispatch:
 
 env:
