@@ -10,5 +10,4 @@ func main() {
 	srv := server.NewServer(cfg, false)
 
 	srv.Start()
-	//srv.StartHttps()
 }
