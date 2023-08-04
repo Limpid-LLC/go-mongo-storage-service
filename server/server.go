@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 
@@ -19,9 +20,10 @@ import (
 )
 
 type Server struct {
-	Config    config.Configuration
-	Websocket bool
-	Client    *mongo.Client
+	Config      config.Configuration
+	Websocket   bool
+	Client      *mongo.Client
+	DuplicateCh chan *bytes.Buffer
 }
 
 type AuthRequest struct {
@@ -34,8 +36,9 @@ var ws websocket.Manager
 
 func NewServer(c config.Configuration, w bool) Server {
 	return Server{
-		Config:    c,
-		Websocket: w,
+		Config:      c,
+		Websocket:   w,
+		DuplicateCh: make(chan *bytes.Buffer),
 	}
 }
 
@@ -53,6 +56,10 @@ func (s Server) Start() {
 	if s.Websocket {
 		r.HandleFunc("/ws/{any}", s.handleWSConnections)
 		ws = websocket.NewWebSocketManager(s.Config)
+	}
+
+	if s.Config.Duplication {
+		go s.duplicateRequests(context.TODO())
 	}
 
 	r.HandleFunc("/{any}", s.handleConnections)
@@ -166,4 +173,35 @@ func (s Server) checkPermissionRequest(r *http.Request, collection, method strin
 	}
 	return errors.New("Method or collection is not allowed\n")
 
+}
+
+// duplication request logic
+func (s Server) duplicateRequests(ctx context.Context) {
+	ticker := time.NewTicker(time.Duration(s.Config.DuplicationInterval) * time.Second)
+	for {
+		select {
+		case <-ctx.Done():
+			log.Println("duplicateRequests - ctx.Done()")
+			return
+		case <-ticker.C:
+			buf := <-s.DuplicateCh
+			client := http.Client{
+				Timeout: time.Duration(s.Config.DuplicateTimeout) * time.Second,
+			}
+			req, err := http.NewRequest("POST", s.Config.DuplicationURL, buf)
+			if err != nil {
+				log.Printf("duplicateRequests - http.NewRequest : %w", err)
+				continue
+			}
+			resp, err := client.Do(req)
+			if err != nil {
+				log.Printf("duplicateRequests - client.Do : %s", err.Error())
+				continue
+			}
+			if resp.StatusCode != 200 {
+				log.Printf("duplicateRequests - client.Do  - resp.StatusCode : %d, duplicationURL : %s)", resp.StatusCode, s.Config.DuplicationURL)
+				continue
+			}
+		}
+	}
 }

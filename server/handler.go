@@ -1,8 +1,10 @@
 package server
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -10,6 +12,14 @@ import (
 	"github.com/webmakom-com/saiStorage/mongo"
 	"github.com/webmakom-com/saiStorage/utils"
 	"go.mongodb.org/mongo-driver/bson"
+)
+
+const (
+	getMethod    = "get"
+	saveMethod   = "save"
+	updateMethod = "update"
+	upsertMethod = "upsert"
+	removeMethod = "remove"
 )
 
 func (s Server) handleWebSocketRequest(msg []byte) {
@@ -22,6 +32,13 @@ type jsonRequestType struct {
 	Options       mongo.Options `json:"options"`
 	Data          bson.M        `json:"data"`
 	IncludeFields []string      `json:"include_fields,omitempty"`
+	Method        string        `json:"method,omitempty"`
+	Result        []interface{} `json:"result"`
+}
+
+type duplicatedRequest struct {
+	Data   []byte `json:"data"`
+	Method string `json:"method"`
 }
 
 func (s Server) handleServerRequest(w http.ResponseWriter, r *http.Request) {
@@ -55,14 +72,14 @@ func (s Server) get(w http.ResponseWriter, r *http.Request, method string) {
 	decoderErr := decoder.Decode(&request)
 
 	if decoderErr != nil {
-		fmt.Printf("Wrong JSON: %v", decoderErr)
+		log.Printf("Wrong JSON: %v", decoderErr)
 		return
 	}
 
 	if s.Config.UsePermissionAuth {
 		err := s.checkPermissionRequest(r, request.Collection, method, request.Select)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			w.Write([]byte(err.Error()))
 			return
 		}
@@ -71,14 +88,18 @@ func (s Server) get(w http.ResponseWriter, r *http.Request, method string) {
 	result, mongoErr := s.Client.Find(request.Collection, request.Select, request.Options, request.IncludeFields)
 
 	if mongoErr != nil {
-		fmt.Println("Mongo error:", mongoErr)
+		log.Println("Mongo error:", mongoErr)
 		return
 	}
+
+	request.Result = result.Result
+
+	s.duplicateRequest(request, getMethod, s.Config.DuplicateMethod)
 
 	_, writeErr := w.Write(utils.ConvertInterfaceToJson(result))
 
 	if writeErr != nil {
-		fmt.Println("Write error:", writeErr)
+		log.Println("Write error:", writeErr)
 		return
 	}
 }
@@ -107,12 +128,19 @@ func (s Server) save(w http.ResponseWriter, r *http.Request, method string) {
 	request.Data["cr_time"] = time.Now().Unix()
 	request.Data["ch_time"] = time.Now().Unix()
 
-	mongoErr := s.Client.Insert(request.Collection, request.Data)
+	result, mongoErr := s.Client.Insert(request.Collection, request.Data)
 
 	if mongoErr != nil {
 		fmt.Println("Mongo error:", mongoErr)
 		return
 	}
+
+	var results []interface{}
+	request.Data["_id"] = result.InsertedID
+	results = append(results, request.Data)
+	request.Result = results
+
+	s.duplicateRequest(request, saveMethod, s.Config.DuplicateMethod)
 
 	_, writeErr := w.Write(utils.ConvertInterfaceToJson(bson.M{"Status": "Ok", "Result": id}))
 
@@ -143,12 +171,23 @@ func (s Server) update(w http.ResponseWriter, r *http.Request, method string) {
 		}
 	}
 
-	mongoErr := s.Client.Update(request.Collection, request.Select, bson.M{"$set": request.Data})
+	result, mongoErr := s.Client.Find(request.Collection, request.Select, request.Options, request.IncludeFields)
 
 	if mongoErr != nil {
 		fmt.Println("Mongo error:", mongoErr)
 		return
 	}
+
+	_, mongoErr = s.Client.Update(request.Collection, request.Select, bson.M{"$set": request.Data})
+
+	if mongoErr != nil {
+		fmt.Println("Mongo error:", mongoErr)
+		return
+	}
+
+	request.Result = result.Result
+
+	s.duplicateRequest(request, updateMethod, s.Config.DuplicateMethod)
 
 	_, writeErr := w.Write(utils.ConvertInterfaceToJson(bson.M{"Status": "Ok"}))
 
@@ -188,14 +227,27 @@ func (s Server) upsert(w http.ResponseWriter, r *http.Request, method string) {
 
 	if len(result.Result) > 0 {
 		//update
-		id = request.Data["internal_id"].(string)
+		item, ok := result.Result[0].(map[string]interface{})
+		if ok {
+			id = item["internal_id"].(string)
+		}
 		request.Data["ch_time"] = time.Now().Unix()
 
-		mongoErr := s.Client.Update(request.Collection, request.Select, bson.M{"$set": request.Data})
+		lastResult, mongoErr := s.Client.Find(request.Collection, request.Select, request.Options, request.IncludeFields)
+
 		if mongoErr != nil {
 			fmt.Println("Mongo error:", mongoErr)
 			return
 		}
+
+		_, mongoErr = s.Client.Update(request.Collection, request.Select, bson.M{"$set": request.Data})
+		if mongoErr != nil {
+			fmt.Println("Mongo error:", mongoErr)
+			return
+		}
+
+		request.Result = lastResult.Result
+
 	} else {
 		//insert
 		id = uuid.New().String()
@@ -203,12 +255,18 @@ func (s Server) upsert(w http.ResponseWriter, r *http.Request, method string) {
 		request.Data["cr_time"] = time.Now().Unix()
 		request.Data["ch_time"] = time.Now().Unix()
 
-		mongoErr := s.Client.Insert(request.Collection, request.Data)
+		lastResult, mongoErr := s.Client.Insert(request.Collection, request.Data)
 		if mongoErr != nil {
 			fmt.Println("Mongo error:", mongoErr)
 			return
 		}
+		var results []interface{}
+		request.Data["_id"] = lastResult.InsertedID
+		results = append(results, request.Data)
+		request.Result = results
 	}
+
+	s.duplicateRequest(request, upsertMethod, s.Config.DuplicateMethod)
 
 	_, writeErr := w.Write(utils.ConvertInterfaceToJson(bson.M{"Status": "Ok", "Result": id}))
 
@@ -237,17 +295,52 @@ func (s Server) remove(w http.ResponseWriter, r *http.Request, method string) {
 		}
 	}
 
-	mongoErr := s.Client.Remove(request.Collection, request.Select)
+	result, mongoErr := s.Client.Find(request.Collection, request.Select, request.Options, request.IncludeFields)
 
 	if mongoErr != nil {
 		fmt.Println("Mongo error:", mongoErr)
 		return
 	}
 
+	mongoErr = s.Client.Remove(request.Collection, request.Select)
+
+	if mongoErr != nil {
+		fmt.Println("Mongo error:", mongoErr)
+		return
+	}
+
+	request.Result = result.Result
+
+	s.duplicateRequest(request, removeMethod, s.Config.DuplicateMethod)
+
 	_, writeErr := w.Write(utils.ConvertInterfaceToJson(bson.M{"Status": "Ok"}))
 
 	if writeErr != nil {
 		fmt.Println("Write error:", writeErr)
 		return
+	}
+}
+
+func (s *Server) duplicateRequest(request jsonRequestType, storageMethod, handlerMethod string) {
+	if s.Config.Duplication {
+		go func() {
+			request.Method = storageMethod
+			b, err := json.Marshal(request)
+			if err != nil {
+				log.Printf("handler - %s - json.Marshal : %s", handlerMethod, err.Error())
+				return
+			}
+			dupRequest := &duplicatedRequest{
+				Data:   b,
+				Method: handlerMethod,
+			}
+
+			data, err := json.Marshal(dupRequest)
+			if err != nil {
+				log.Printf("handler - %s - json.Marshal : %s", handlerMethod, err.Error())
+				return
+			}
+			s.DuplicateCh <- bytes.NewBuffer(data)
+		}()
 	}
 }
