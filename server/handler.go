@@ -1,7 +1,6 @@
 package server
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -94,7 +93,7 @@ func (s Server) get(w http.ResponseWriter, r *http.Request, method string) {
 
 	request.Result = result.Result
 
-	s.duplicateRequest(request, getMethod, s.Config.DuplicateMethod)
+	s.duplicateRequest(request, getMethod)
 
 	_, writeErr := w.Write(utils.ConvertInterfaceToJson(result))
 
@@ -140,7 +139,7 @@ func (s Server) save(w http.ResponseWriter, r *http.Request, method string) {
 	results = append(results, request.Data)
 	request.Result = results
 
-	s.duplicateRequest(request, saveMethod, s.Config.DuplicateMethod)
+	s.duplicateRequest(request, saveMethod)
 
 	_, writeErr := w.Write(utils.ConvertInterfaceToJson(bson.M{"Status": "Ok", "Result": id}))
 
@@ -187,7 +186,7 @@ func (s Server) update(w http.ResponseWriter, r *http.Request, method string) {
 
 	request.Result = result.Result
 
-	s.duplicateRequest(request, updateMethod, s.Config.DuplicateMethod)
+	s.duplicateRequest(request, updateMethod)
 
 	_, writeErr := w.Write(utils.ConvertInterfaceToJson(bson.M{"Status": "Ok"}))
 
@@ -266,7 +265,7 @@ func (s Server) upsert(w http.ResponseWriter, r *http.Request, method string) {
 		request.Result = results
 	}
 
-	s.duplicateRequest(request, upsertMethod, s.Config.DuplicateMethod)
+	s.duplicateRequest(request, upsertMethod)
 
 	_, writeErr := w.Write(utils.ConvertInterfaceToJson(bson.M{"Status": "Ok", "Result": id}))
 
@@ -311,7 +310,7 @@ func (s Server) remove(w http.ResponseWriter, r *http.Request, method string) {
 
 	request.Result = result.Result
 
-	s.duplicateRequest(request, removeMethod, s.Config.DuplicateMethod)
+	s.duplicateRequest(request, removeMethod)
 
 	_, writeErr := w.Write(utils.ConvertInterfaceToJson(bson.M{"Status": "Ok"}))
 
@@ -321,26 +320,15 @@ func (s Server) remove(w http.ResponseWriter, r *http.Request, method string) {
 	}
 }
 
-func (s *Server) duplicateRequest(request jsonRequestType, storageMethod, handlerMethod string) {
+func (s *Server) duplicateRequest(request jsonRequestType, storageMethod string) {
 	if s.Config.Duplication {
-		go func() {
-			request.Method = storageMethod
-			b, err := json.Marshal(request)
-			if err != nil {
-				log.Printf("handler - %s - json.Marshal : %s", handlerMethod, err.Error())
-				return
-			}
-			dupRequest := &duplicatedRequest{
-				Data:   b,
-				Method: handlerMethod,
-			}
+		request.Method = storageMethod
+		b, err := json.Marshal(request)
+		if err != nil {
+			log.Printf("handler - %s - json.Marshal : %s", storageMethod, err.Error())
+			return
+		}
 
-			data, err := json.Marshal(dupRequest)
-			if err != nil {
-				log.Printf("handler - %s - json.Marshal : %s", handlerMethod, err.Error())
-				return
-			}
-			s.DuplicateCh <- bytes.NewBuffer(data)
-		}()
+		s.DuplicateCh <- b
 	}
 }

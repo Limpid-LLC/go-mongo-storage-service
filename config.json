@@ -28,7 +28,6 @@
     },
     "Duplication": true,
     "DuplicationURL": "http://app.fixiq.pro:7880",
-    "DuplicationInterval": 3,
-    "DuplicateTimeout": 5,
+    "DuplicateTimeout": 20,
     "DuplicateMethod": "notify"
 }
