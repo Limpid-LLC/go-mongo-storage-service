@@ -34,11 +34,10 @@ type Configuration struct {
 		Host string
 		Port string
 	}
-	Duplication         bool   // if true, modification requests (save,update,upsert,remove)
-	DuplicationURL      string // url, where duplicating request will be sent
-	DuplicationInterval int    // interval to send duplicated requests
-	DuplicateTimeout    int    // timeout to send duplicated request
-	DuplicateMethod     string // method for saiService handler
+	Duplication      bool   // if true, modification requests (save,update,upsert,remove)
+	DuplicationURL   string // url, where duplicating request will be sent
+	DuplicateTimeout int    // timeout to send duplicated request
+	DuplicateMethod  string // method for saiService handler
 }
 
 func Load() Configuration {

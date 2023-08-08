@@ -28,7 +28,6 @@
     },
     "Duplication": true,
     "DuplicationURL": "http://go-storage-notification-service.qa.f1xiq.com:7880",
-    "DuplicationInterval": 3,
-    "DuplicateTimeout": 5,
+    "DuplicateTimeout": 20,
     "DuplicateMethod": "notify"
 }
