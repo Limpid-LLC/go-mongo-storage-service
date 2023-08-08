@@ -1,8 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ${SERVICE_NAME}-deploy
-  namespace: ${NAMESPACE_NAME}-main
+  name: ${SERVICE_NAME}-main-deploy
+  namespace: ${NAMESPACE_NAME}
   labels:
     app: ${SERVICE_NAME}-main
 spec:
@@ -17,6 +17,6 @@ spec:
     spec:
       containers:
       - name: ${SERVICE_NAME}-main-microservice
-        image: ${IMAGE_NAME}
+        image: ${IMAGE_NAME}-main
         ports:
 
