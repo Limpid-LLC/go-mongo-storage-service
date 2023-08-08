@@ -9,14 +9,14 @@ spec:
   replicas: ${REPLICAS}
   selector:
     matchLabels:
-      app: ${SERVICE_NAME}
+      app: ${SERVICE_NAME}-main
   template:
     metadata:
       labels:
-        app: ${SERVICE_NAME}
+        app: ${SERVICE_NAME}-main
     spec:
       containers:
-      - name: ${SERVICE_NAME}-microservice
+      - name: ${SERVICE_NAME}-main
         image: ${IMAGE_NAME}
         ports:
 
