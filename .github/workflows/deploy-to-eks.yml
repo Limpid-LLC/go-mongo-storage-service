@@ -37,13 +37,13 @@ jobs:
       - name: Login to docker registry
         run: |
           aws ecr get-login-password --region ${{env.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{ env.AWS_ECR }}
-          aws ecr describe-repositories --repository-names ${{env.SERVICE_NAME}}-main || aws ecr create-repository --image-tag-mutability MUTABLE --repository-name ${{env.SERVICE_NAME}}-main
+          aws ecr describe-repositories --repository-names ${{env.SERVICE_NAME}} || aws ecr create-repository --image-tag-mutability MUTABLE --repository-name ${{env.SERVICE_NAME}}
 
       - name: Build image
         run: |
           go get
-          docker build --pull --progress plain -t ${{env.IMAGE_NAME}}-main .
-          docker push ${{env.IMAGE_NAME}}-main
+          docker build --pull --progress plain -t ${{env.IMAGE_NAME}} .
+          docker push ${{env.IMAGE_NAME}}
 
   deploy-to-eks:
     needs: build-and-push-to-ecr
