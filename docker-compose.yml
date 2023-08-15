@@ -8,8 +8,8 @@ services:
       - 8802:8802
 #    depends_on:
 #      - mongo-db
-    volumes:
-      - ./config.json:/srv/config.json
+#    volumes:
+#      - ./config.json:/srv/config.json
 #  mongo-db:
 #    image: mongo:latest
 #    volumes:
