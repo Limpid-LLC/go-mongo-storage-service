@@ -27,8 +27,8 @@
         "Port": ""
     },
     "Duplication": true,
-    "DuplicationURL": "http://app.fixiq.pro:7880",
-    "DuplicateTimeout": 20,
+    "DuplicationURL": "http://go-storage-notification-service.qa.f1xiq.com:7880",
+    "DuplicateTimeout": 200,
     "DuplicatePause": 3,
     "DuplicateMethod": "notify"
 }

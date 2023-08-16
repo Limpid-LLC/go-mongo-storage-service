@@ -188,6 +188,7 @@ func (s Server) update(w http.ResponseWriter, r *http.Request, method string) {
 
 	go s.duplicateRequest(request, updateMethod)
 
+
 	_, writeErr := w.Write(utils.ConvertInterfaceToJson(bson.M{"Status": "Ok"}))
 
 	if writeErr != nil {
