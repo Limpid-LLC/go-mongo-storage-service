@@ -38,6 +38,7 @@ type Configuration struct {
 	DuplicationURL   string // url, where duplicating request will be sent
 	DuplicateTimeout int    // timeout to send duplicated request
 	DuplicateMethod  string // method for saiService handler
+	DuplicatePause   int    // timeout send request to the duplication
 }
 
 func Load() Configuration {
