@@ -1,11 +1,11 @@
 {
     "HttpServer": {
         "Host": "0.0.0.0",
-        "Port": "8801"
+        "Port": "8701"
     },
     "HttpsServer": {
         "Host": "0.0.0.0",
-        "Port": "8802"
+        "Port": "8702"
     },
     "Storage": {
         "Atlas": false,
@@ -25,9 +25,9 @@
         "Host": "",
         "Port": ""
     },
-    "Duplication": true,
-    "DuplicationURL": "http://devops.f1xiq.com:7880",
-    "DuplicateTimeout": 20,
+    "Duplication": false,
+    "DuplicationURL": "",
+    "DuplicateTimeout": 800,
     "DuplicatePause": 3,
     "DuplicateMethod": "notify"
 }
