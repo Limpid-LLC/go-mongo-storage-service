@@ -175,28 +175,28 @@ func (c Client) Find(collectionName string, selector map[string]interface{}, inp
 	return findResult, nil
 }
 
-func (c Client) Insert(collectionName string, doc interface{}) error {
+func (c Client) Insert(collectionName string, doc interface{}) (*mongo.InsertOneResult, error) {
 	collection := c.GetCollection(collectionName)
 
 	//processedDoc := c.preprocessDoc(doc)
-	_, err := collection.InsertOne(context.TODO(), doc)
+	result, err := collection.InsertOne(context.TODO(), doc)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return result, nil
 }
 
-func (c Client) Update(collectionName string, selector map[string]interface{}, update interface{}) error {
+func (c Client) Update(collectionName string, selector map[string]interface{}, update interface{}) (*mongo.UpdateResult, error) {
 	collection := c.GetCollection(collectionName)
 	selector = c.preprocessSelector(selector)
 
-	_, err := collection.UpdateMany(context.TODO(), selector, update)
+	result, err := collection.UpdateMany(context.TODO(), selector, update)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return result, nil
 }
 
 func (c Client) Upsert(collectionName string, selector map[string]interface{}, update interface{}) error {
