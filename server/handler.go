@@ -93,7 +93,7 @@ func (s Server) get(w http.ResponseWriter, r *http.Request, method string) {
 
 	request.Result = result.Result
 
-	s.duplicateRequest(request, getMethod)
+	go s.duplicateRequest(request, getMethod)
 
 	_, writeErr := w.Write(utils.ConvertInterfaceToJson(result))
 
@@ -139,7 +139,7 @@ func (s Server) save(w http.ResponseWriter, r *http.Request, method string) {
 	results = append(results, request.Data)
 	request.Result = results
 
-	s.duplicateRequest(request, saveMethod)
+	go s.duplicateRequest(request, saveMethod)
 
 	_, writeErr := w.Write(utils.ConvertInterfaceToJson(bson.M{"Status": "Ok", "Result": id}))
 
@@ -186,7 +186,8 @@ func (s Server) update(w http.ResponseWriter, r *http.Request, method string) {
 
 	request.Result = result.Result
 
-	s.duplicateRequest(request, updateMethod)
+	go s.duplicateRequest(request, updateMethod)
+
 
 	_, writeErr := w.Write(utils.ConvertInterfaceToJson(bson.M{"Status": "Ok"}))
 
@@ -265,7 +266,7 @@ func (s Server) upsert(w http.ResponseWriter, r *http.Request, method string) {
 		request.Result = results
 	}
 
-	s.duplicateRequest(request, upsertMethod)
+	go s.duplicateRequest(request, upsertMethod)
 
 	_, writeErr := w.Write(utils.ConvertInterfaceToJson(bson.M{"Status": "Ok", "Result": id}))
 
@@ -310,7 +311,7 @@ func (s Server) remove(w http.ResponseWriter, r *http.Request, method string) {
 
 	request.Result = result.Result
 
-	s.duplicateRequest(request, removeMethod)
+	go s.duplicateRequest(request, removeMethod)
 
 	_, writeErr := w.Write(utils.ConvertInterfaceToJson(bson.M{"Status": "Ok"}))
 
@@ -321,6 +322,8 @@ func (s Server) remove(w http.ResponseWriter, r *http.Request, method string) {
 }
 
 func (s *Server) duplicateRequest(request jsonRequestType, storageMethod string) {
+	time.Sleep(time.Duration(s.Config.DuplicatePause) * time.Second)
+
 	if s.Config.Duplication {
 		request.Method = storageMethod
 		b, err := json.Marshal(request)
