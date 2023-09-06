@@ -1,4 +1,4 @@
-name: Deploy by call reusable action
+name: Deploy to DEV
 # https://docs.github.com/en/actions/using-workflows/reusing-workflows
 # see https://docs.github.com/en/actions/using-workflows/reusing-workflows#using-a-matrix-strategy-with-a-reusable-workflow
 on:
