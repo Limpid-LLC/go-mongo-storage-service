@@ -1,9 +1,9 @@
-name: Deploy to EKS
+name: Deploy to STAGE
 
 on:
-  # push:
-  #   branches:
-  #     - stage
+  push:
+    branches:
+      - stage
   workflow_dispatch:
 
 env:
