@@ -1,0 +1,19 @@
+name: Deploy by call reusable action
+# https://docs.github.com/en/actions/using-workflows/reusing-workflows
+# see https://docs.github.com/en/actions/using-workflows/reusing-workflows#using-a-matrix-strategy-with-a-reusable-workflow
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+jobs:
+  build-and-deploy:
+    #strategy:
+    #  matrix: [dev,dev2,stage,prod]
+    uses: Limpid-LLC/aws-deploy/.github/workflows/reusable-workflow.yml@main
+    with:
+      config-path: .env.dev2
+      #dir-to-upload: ./nginx/
+      #dir-to-upload: ./
+      #target: ${{ matrix.target }}
+    secrets: inherit
