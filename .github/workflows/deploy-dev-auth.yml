@@ -1,0 +1,20 @@
+name: Deploy to DEV AUTH
+# https://docs.github.com/en/actions/using-workflows/reusing-workflows
+# see https://docs.github.com/en/actions/using-workflows/reusing-workflows#using-a-matrix-strategy-with-a-reusable-workflow
+on:
+  # push:
+  #   branches:
+  #     - dev
+  workflow_dispatch:
+jobs:
+  build-and-deploy:
+    #strategy:
+    #  matrix: [dev,dev2,stage,prod]
+    uses: ./.github/workflows/reusable-workflow.yml
+    with:
+      service-tag: auth
+      config-path: .env.dev_auth
+      #dir-to-upload: ./nginx/
+      #dir-to-upload: ./
+      #target: ${{ matrix.target }}
+    secrets: inherit
