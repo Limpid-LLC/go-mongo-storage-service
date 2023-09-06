@@ -10,7 +10,7 @@ jobs:
   build-and-deploy:
     #strategy:
     #  matrix: [dev,dev2,stage,prod]
-    uses: Limpid-LLC/aws-deploy/.github/workflows/reusable-workflow.yml@main
+    uses: ./.github/workflows/reusable-workflow.yml
     #with:
       #config-path: .env.master
       #dir-to-upload: ./nginx/
