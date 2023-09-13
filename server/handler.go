@@ -177,7 +177,11 @@ func (s Server) update(w http.ResponseWriter, r *http.Request, method string) {
 		return
 	}
 
-	_, mongoErr = s.Client.Update(request.Collection, request.Select, bson.M{"$set": request.Data})
+	if request.Options.NoSet {
+		_, mongoErr = s.Client.Update(request.Collection, request.Select, request.Data)
+	} else {
+		_, mongoErr = s.Client.Update(request.Collection, request.Select, bson.M{"$set": request.Data})
+	}
 
 	if mongoErr != nil {
 		fmt.Println("Mongo error:", mongoErr)
