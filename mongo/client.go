@@ -26,6 +26,7 @@ type FindResult struct {
 }
 
 type Options struct {
+	NoSet bool   `json:"noset"`
 	Limit int64  `json:"limit"`
 	Skip  int64  `json:"skip"`
 	Sort  bson.M `json:"sort"`
