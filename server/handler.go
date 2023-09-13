@@ -159,8 +159,6 @@ func (s Server) update(w http.ResponseWriter, r *http.Request, method string) {
 		return
 	}
 
-	request.Data["ch_time"] = time.Now().Unix()
-
 	if s.Config.UsePermissionAuth {
 		err := s.checkPermissionRequest(r, request.Collection, method, request.Select)
 		if err != nil {
@@ -178,8 +176,10 @@ func (s Server) update(w http.ResponseWriter, r *http.Request, method string) {
 	}
 
 	if request.Options.NoSet {
+		request.Data["$set"] = bson.M{"ch_time": time.Now().Unix()}
 		_, mongoErr = s.Client.Update(request.Collection, request.Select, request.Data)
 	} else {
+		request.Data["ch_time"] = time.Now().Unix()
 		_, mongoErr = s.Client.Update(request.Collection, request.Select, bson.M{"$set": request.Data})
 	}
 
