@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 
@@ -180,7 +179,6 @@ func (s Server) checkPermissionRequest(r *http.Request, collection, method strin
 func (s Server) duplicateRequests(ctx context.Context) {
 	for {
 		buf := <-s.DuplicateCh
-		log.Printf("duplicateRequests json.Marshal: %s", string(buf))
 
 		go func() {
 			dupRequest := &duplicatedRequest{
@@ -190,13 +188,11 @@ func (s Server) duplicateRequests(ctx context.Context) {
 
 			dupRequestBytes, err := json.Marshal(dupRequest)
 			if err != nil {
-				log.Printf("handler - %s - json.Marshal : %s", string(buf), err.Error())
 				return
 			}
 
 			req, err := http.NewRequest("POST", s.Config.DuplicationURL, bytes.NewBuffer(dupRequestBytes))
 			if err != nil {
-				log.Printf("duplicateRequests - http.NewRequest : %w", err)
 				return
 			}
 
@@ -205,11 +201,10 @@ func (s Server) duplicateRequests(ctx context.Context) {
 			}
 			resp, err := client.Do(req)
 			if err != nil {
-				log.Printf("duplicateRequests - client.Do : %s", err.Error())
 				return
 			}
+
 			if resp.StatusCode != 200 {
-				log.Printf("duplicateRequests - client.Do  - resp.StatusCode : %d, duplicationURL : %s)", resp.StatusCode, s.Config.DuplicationURL)
 				return
 			}
 		}()
