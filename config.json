@@ -13,10 +13,10 @@
         "Pass": "",
         "Host": "",
         "Port": "27017",
-        "Database": "test",
+        "Database": "storage-prod",
         "ConnectionString": "mongodb://databasesupervisor:bfz!ZCM!zpt2cmk.eva@docdb-f1xiq.cluster-cwivb31yqdxb.eu-central-1.docdb.amazonaws.com:27017/?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
     },
-    "Token": "12345",
+    "Token": "",
     "WebSocket": {
         "Token": "hv",
         "Url": "http://sai-websocket:8820"
@@ -27,8 +27,8 @@
         "Port": ""
     },
     "Duplication": true,
-    "DuplicationURL": "http://go-storage-notification-service.qa.f1xiq.com:7880",
-    "DuplicateTimeout": 400,
-    "DuplicatePause": 3,
+    "DuplicationURL": "http://app.fixiq.pro:7880/",
+    "DuplicateTimeout": 600,
+    "DuplicatePause": 1,
     "DuplicateMethod": "notify"
 }
