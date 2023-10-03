@@ -1,6 +1,3 @@
-restart:
-	go build -o service-bin && ./service-bin start
-
 up:
 	docker-compose up -d
 
