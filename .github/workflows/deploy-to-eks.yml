@@ -42,6 +42,8 @@ jobs:
       - name: Build image
         run: |
           go get
+          mv config.yml config-template.yml 
+          set -a && source .env.stage && set +a && envsubst < config-template.yml > config.yml
           docker build --pull --progress plain -t ${{env.IMAGE_NAME}} .
           docker push ${{env.IMAGE_NAME}}
 
