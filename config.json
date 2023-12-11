@@ -14,7 +14,7 @@
         "Host": "",
         "Port": "27017",
         "Database": "auth",
-        "ConnectionString": "mongodb://databasesupervisor:bfz!ZCM!zpt2cmk.eva@docdb-f1xiq.cluster-cwivb31yqdxb.eu-central-1.docdb.amazonaws.com:27017/?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
+        "ConnectionString": "mongodb://dbstagesupervisor:rangoon-bumper-feldspar-duma@docdb-stage.cluster-cwivb31yqdxb.eu-central-1.docdb.amazonaws.com:27017/?replicaSet=rs0&readPreference=secondaryPreferred"
     },
     "Token": "12345",
     "WebSocket": {
