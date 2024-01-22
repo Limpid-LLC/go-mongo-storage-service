@@ -124,7 +124,7 @@ func (s Server) save(w http.ResponseWriter, r *http.Request, method string) {
 	}
 
 	id, ok := request.Data["internal_id"].(string)
-	if !ok {
+	if !ok || id == "" {
 		id = uuid.New().String()
 	}
 
