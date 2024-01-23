@@ -27,7 +27,7 @@
         "Port": ""
     },
     "Duplication": true,
-    "DuplicationURL": "http://app.fixiq.pro:7880/",
+    "DuplicationURL": "http://qa.fixiq.pro:7880/",
     "DuplicateTimeout": 600,
     "DuplicatePause": 1,
     "DuplicateMethod": "notify"
