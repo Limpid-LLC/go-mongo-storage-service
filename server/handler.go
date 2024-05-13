@@ -88,6 +88,7 @@ func (s Server) get(w http.ResponseWriter, r *http.Request, method string) {
 	result, mongoErr := s.Client.Find(request.Collection, request.Select, request.Options, request.IncludeFields)
 
 	if mongoErr != nil {
+		log.Println("Mongo request:", request)
 		log.Println("Mongo error:", mongoErr)
 		return
 	}
@@ -135,6 +136,7 @@ func (s Server) save(w http.ResponseWriter, r *http.Request, method string) {
 	result, mongoErr := s.Client.Insert(request.Collection, request.Data)
 
 	if mongoErr != nil {
+		log.Println("Mongo request:", request)
 		fmt.Println("Mongo error:", mongoErr)
 		return
 	}
@@ -176,6 +178,7 @@ func (s Server) update(w http.ResponseWriter, r *http.Request, method string) {
 	result, mongoErr := s.Client.Find(request.Collection, request.Select, request.Options, request.IncludeFields)
 
 	if mongoErr != nil {
+		log.Println("Mongo request:", request)
 		fmt.Println("Mongo error:", mongoErr)
 		return
 	}
@@ -189,6 +192,7 @@ func (s Server) update(w http.ResponseWriter, r *http.Request, method string) {
 	}
 
 	if mongoErr != nil {
+		log.Println("Mongo request:", request)
 		fmt.Println("Mongo error:", mongoErr)
 		return
 	}
@@ -227,6 +231,7 @@ func (s Server) upsert(w http.ResponseWriter, r *http.Request, method string) {
 	result, mongoErr := s.Client.Find(request.Collection, request.Select, request.Options, request.IncludeFields)
 
 	if mongoErr != nil {
+		log.Println("Mongo request:", request)
 		fmt.Println("Mongo error:", mongoErr)
 		return
 	}
@@ -244,12 +249,14 @@ func (s Server) upsert(w http.ResponseWriter, r *http.Request, method string) {
 		lastResult, mongoErr := s.Client.Find(request.Collection, request.Select, request.Options, request.IncludeFields)
 
 		if mongoErr != nil {
+			log.Println("Mongo request:", request)
 			fmt.Println("Mongo error:", mongoErr)
 			return
 		}
 
 		_, mongoErr = s.Client.Update(request.Collection, request.Select, bson.M{"$set": request.Data})
 		if mongoErr != nil {
+			log.Println("Mongo request:", request)
 			fmt.Println("Mongo error:", mongoErr)
 			return
 		}
@@ -265,6 +272,7 @@ func (s Server) upsert(w http.ResponseWriter, r *http.Request, method string) {
 
 		lastResult, mongoErr := s.Client.Insert(request.Collection, request.Data)
 		if mongoErr != nil {
+			log.Println("Mongo request:", request)
 			fmt.Println("Mongo error:", mongoErr)
 			return
 		}
@@ -306,6 +314,7 @@ func (s Server) remove(w http.ResponseWriter, r *http.Request, method string) {
 	result, mongoErr := s.Client.Find(request.Collection, request.Select, request.Options, request.IncludeFields)
 
 	if mongoErr != nil {
+		log.Println("Mongo request:", request)
 		fmt.Println("Mongo error:", mongoErr)
 		return
 	}
@@ -313,6 +322,7 @@ func (s Server) remove(w http.ResponseWriter, r *http.Request, method string) {
 	mongoErr = s.Client.Remove(request.Collection, request.Select)
 
 	if mongoErr != nil {
+		log.Println("Mongo request:", request)
 		fmt.Println("Mongo error:", mongoErr)
 		return
 	}
