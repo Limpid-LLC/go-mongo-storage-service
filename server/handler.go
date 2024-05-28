@@ -129,8 +129,8 @@ func (s Server) save(w http.ResponseWriter, r *http.Request, method string) {
 	}
 
 	request.Data["internal_id"] = id
-	request.Data["cr_time"] = time.Now().Unix()
-	request.Data["ch_time"] = time.Now().Unix()
+	request.Data["cr_time"] = time.Now().UnixMicro()
+	request.Data["ch_time"] = time.Now().UnixMicro()
 
 	result, mongoErr := s.Client.Insert(request.Collection, request.Data)
 
@@ -181,10 +181,10 @@ func (s Server) update(w http.ResponseWriter, r *http.Request, method string) {
 	}
 
 	if request.Options.NoSet {
-		request.Data["$set"] = bson.M{"ch_time": time.Now().Unix()}
+		request.Data["$set"] = bson.M{"ch_time": time.Now().UnixMicro()}
 		_, mongoErr = s.Client.Update(request.Collection, request.Select, request.Data)
 	} else {
-		request.Data["ch_time"] = time.Now().Unix()
+		request.Data["ch_time"] = time.Now().UnixMicro()
 		_, mongoErr = s.Client.Update(request.Collection, request.Select, bson.M{"$set": request.Data})
 	}
 
@@ -239,7 +239,7 @@ func (s Server) upsert(w http.ResponseWriter, r *http.Request, method string) {
 		if ok {
 			id = item["internal_id"].(string)
 		}
-		request.Data["ch_time"] = time.Now().Unix()
+		request.Data["ch_time"] = time.Now().UnixMicro()
 
 		lastResult, mongoErr := s.Client.Find(request.Collection, request.Select, request.Options, request.IncludeFields)
 
@@ -260,8 +260,8 @@ func (s Server) upsert(w http.ResponseWriter, r *http.Request, method string) {
 		//insert
 		id = uuid.New().String()
 		request.Data["internal_id"] = id
-		request.Data["cr_time"] = time.Now().Unix()
-		request.Data["ch_time"] = time.Now().Unix()
+		request.Data["cr_time"] = time.Now().UnixMicro()
+		request.Data["ch_time"] = time.Now().UnixMicro()
 
 		lastResult, mongoErr := s.Client.Insert(request.Collection, request.Data)
 		if mongoErr != nil {
