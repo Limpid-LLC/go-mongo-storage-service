@@ -141,7 +141,7 @@ func (c Client) Find(collectionName string, selector map[string]interface{}, inp
 	}
 
 	if inputOptions.Batch > 0 {
-		requestOptions.SetAllowDiskUse(true)
+		//requestOptions.SetAllowDiskUse(true)
 		requestOptions.SetBatchSize(int32(inputOptions.Batch))
 	}
 
