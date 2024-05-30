@@ -31,6 +31,7 @@ type Options struct {
 	Skip  int64  `json:"skip"`
 	Sort  bson.M `json:"sort"`
 	Count int64  `json:"count"`
+	Batch int64  `json:"batch"`
 }
 
 func NewMongoClient(config config.Configuration) (Client, error) {
@@ -137,6 +138,12 @@ func (c Client) Find(collectionName string, selector map[string]interface{}, inp
 
 	if inputOptions.Limit != 0 {
 		requestOptions.SetLimit(inputOptions.Limit)
+	}
+
+	if inputOptions.Batch > 0 {
+		requestOptions.SetAllowDiskUse(true)
+		requestOptions.SetBatchSize(int32(inputOptions.Batch))
+
 	}
 
 	if includeFields != nil {
