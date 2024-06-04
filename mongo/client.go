@@ -255,6 +255,19 @@ func (c Client) preprocessSelector(selector map[string]interface{}) map[string]i
 						objIDslice = append(objIDslice, objID)
 					}
 					m[k] = objIDslice
+				case string:
+					idTmp := v.(string)
+					if len(idTmp) == 0 {
+						m[k] = primitive.NilObjectID
+					} else {
+						objID, err := primitive.ObjectIDFromHex(v.(string))
+						if err != nil {
+							fmt.Printf("wrong type for preprocessSelector: %+v, type : %s", m, reflect.TypeOf(v))
+							continue
+						}
+
+						m[k] = objID
+					}
 				default:
 					fmt.Printf("wrong type for preprocessSelector: %+v, type : %s", m, reflect.TypeOf(v))
 					return selector
