@@ -4,8 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 8801:8801
-      - 8802:8802
+      - $HTTP_PORT:$HTTP_PORT
+      - $HTTPS_PORT:$HTTPS_PORT
 
 volumes:
   mongo_data: {}
