@@ -4,15 +4,16 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - ${HTTP_PORT}:${HTTP_PORT}
-    depends_on:
-      - mongo-db
-    volumes:
-      - ./config.json:/srv/config.json
-  mongo-db:
-    image: mongo:latest
-    volumes:
-      - mongo_data:/data/db
+      - 8801:8801
+      - 8802:8802
+#    depends_on:
+#      - mongo-db
+#    volumes:
+#      - ./config.json:/srv/config.json
+#  mongo-db:
+#    image: mongo:latest
+#    volumes:
+#      - mongo_data:/data/db
 
 volumes:
   mongo_data: {}

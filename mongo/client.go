@@ -30,10 +30,12 @@ type FindResult struct {
 }
 
 type Options struct {
+	NoSet bool   `json:"noset"`
 	Limit int64  `json:"limit"`
 	Skip  int64  `json:"skip"`
 	Sort  bson.M `json:"sort"`
 	Count int64  `json:"count"`
+	Batch int64  `json:"batch"`
 }
 
 func NewMongoClient(config config.Configuration) (Client, error) {
@@ -140,6 +142,11 @@ func (c Client) Find(collectionName string, selector map[string]interface{}, inp
 
 	if inputOptions.Limit != 0 {
 		requestOptions.SetLimit(inputOptions.Limit)
+	}
+
+	if inputOptions.Batch > 0 {
+		//requestOptions.SetAllowDiskUse(true)
+		requestOptions.SetBatchSize(int32(inputOptions.Batch))
 	}
 
 	if includeFields != nil {
@@ -332,6 +339,19 @@ func (c Client) preprocessSelector(selector map[string]interface{}) map[string]i
 						objIDslice = append(objIDslice, objID)
 					}
 					m[k] = objIDslice
+				case string:
+					idTmp := v.(string)
+					if len(idTmp) == 0 {
+						m[k] = primitive.NilObjectID
+					} else {
+						objID, err := primitive.ObjectIDFromHex(v.(string))
+						if err != nil {
+							fmt.Printf("wrong type for preprocessSelector: %+v, type : %s", m, reflect.TypeOf(v))
+							continue
+						}
+
+						m[k] = objID
+					}
 				default:
 					fmt.Printf("wrong type for preprocessSelector: %+v, type : %s", m, reflect.TypeOf(v))
 					return selector

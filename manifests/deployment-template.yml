@@ -19,3 +19,4 @@ spec:
       - name: ${SERVICE_NAME}-microservice
         image: ${IMAGE_NAME}
         ports:
+
