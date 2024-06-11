@@ -2,20 +2,16 @@ package mongo
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
-	"log"
 	"reflect"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/x/bsonx"
 
 	"github.com/webmakom-com/saiStorage/config"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Client struct {
@@ -233,86 +229,6 @@ func (c Client) Remove(collectionName string, selector map[string]interface{}) e
 	}
 
 	return nil
-}
-
-type Data struct {
-	Keys   []bson.M `bson:"keys" json:"keys"`
-	Unique bool     `bson:"unique" json:"unique"`
-}
-
-func (c Client) CreateIndex(collectionName string, data interface{}) error {
-	collection := c.GetCollection(collectionName)
-	var _data Data
-
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		log.Println("data", data)
-		return err
-	}
-
-	err = json.Unmarshal(jsonData, &_data)
-	if err != nil {
-		log.Println("jsonData", jsonData)
-		return err
-	}
-
-	keys := bsonx.Doc{}
-
-	for _, v := range _data.Keys {
-		for _i, _v := range v {
-			value, ok := _v.(float64)
-			if !ok {
-				log.Println("_v", _v)
-				return errors.New("index value not an integer")
-			}
-			keys = append(keys, bsonx.Elem{Key: _i, Value: bsonx.Int32(int32(value))})
-		}
-	}
-
-	indexModel := mongo.IndexModel{
-		Keys: keys,
-	}
-
-	if _data.Unique {
-		indexModel.Options = options.Index().SetUnique(true)
-	}
-
-	_, err = collection.Indexes().CreateOne(context.TODO(), indexModel)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (c Client) GetIndex(collectionName string) ([]interface{}, error) {
-	var result []interface{}
-	collection := c.GetCollection(collectionName)
-
-	cur, err := collection.Indexes().List(context.TODO())
-	if err != nil {
-		return result, err
-	}
-
-	defer cur.Close(context.TODO())
-
-	for cur.Next(context.TODO()) {
-		var index interface{}
-		decodeErr := cur.Decode(&index)
-
-		if decodeErr != nil {
-			return result, decodeErr
-		}
-
-		result = append(result, index)
-		break
-	}
-
-	if cursorErr := cur.Err(); cursorErr != nil {
-		return result, cursorErr
-	}
-
-	return result, nil
 }
 
 func (c Client) preprocessSelector(selector map[string]interface{}) map[string]interface{} {
