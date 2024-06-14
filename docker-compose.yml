@@ -1,5 +1,6 @@
 services:
-  sai-storage-mongo:
+  go-mongo-storage-service:
+    container_name: go-mongo-storage-service
     build:
       context: .
       dockerfile: Dockerfile

@@ -1,8 +1,8 @@
 up:
-	docker-compose up -d
+	docker-compose up -d --force-recreate
 
 build:
-	docker-compose up -d --build
+	docker-compose up -d --build --force-recreate
 
 logs:
 	docker-compose logs -f sai-storage-mongo
