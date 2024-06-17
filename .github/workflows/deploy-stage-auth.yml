@@ -1,9 +1,9 @@
-name: Deploy to EKS
+name: Deploy to STAGE AUTH
 
 on:
   push:
     branches:
-      - stage
+      - stage_auth
   workflow_dispatch:
 
 env:
@@ -37,13 +37,13 @@ jobs:
       - name: Login to docker registry
         run: |
           aws ecr get-login-password --region ${{env.AWS_DEFAULT_REGION}} | docker login --username AWS --password-stdin ${{ env.AWS_ECR }}
-          aws ecr describe-repositories --repository-names ${{env.SERVICE_NAME}} || aws ecr create-repository --image-tag-mutability MUTABLE --repository-name ${{env.SERVICE_NAME}}
+          aws ecr describe-repositories --repository-names ${{env.SERVICE_NAME}}-auth || aws ecr create-repository --image-tag-mutability MUTABLE --repository-name ${{env.SERVICE_NAME}}-auth
 
       - name: Build image
         run: |
           go get
-          docker build --pull --progress plain -t ${{env.IMAGE_NAME}} .
-          docker push ${{env.IMAGE_NAME}}
+          docker build --pull --progress plain -t ${{env.IMAGE_NAME}}-auth .
+          docker push ${{env.IMAGE_NAME}}-auth
 
   deploy-to-eks:
     needs: build-and-push-to-ecr
@@ -80,8 +80,8 @@ jobs:
       - name: inject environment
         run: |
           env
-          cat manifests/deployment-template.yml | envsubst > manifests/deployment.yml
-          cat manifests/ports.yml >> manifests/deployment.yml
+          cat manifests/deployment-template-auth.yml | envsubst > manifests/deployment.yml
+          cat manifests/ports-auth.yml >> manifests/deployment.yml
           cat manifests/deployment.yml
 
       - name: Kubectl deploy

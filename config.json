@@ -13,8 +13,8 @@
         "Pass": "",
         "Host": "",
         "Port": "27017",
-        "Database": "storage-prod",
-        "ConnectionString": "mongodb://databasesupervisor:bfz!ZCM!zpt2cmk.eva@docdb-f1xiq.cluster-cwivb31yqdxb.eu-central-1.docdb.amazonaws.com:27017/?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
+        "Database": "test",
+        "ConnectionString": "mongodb://dbstagesupervisor:rangoon-bumper-feldspar-duma@docdb-stage.cluster-cwivb31yqdxb.eu-central-1.docdb.amazonaws.com:27017/?replicaSet=rs0&readPreference=secondaryPreferred"
     },
     "Token": "",
     "WebSocket": {
@@ -27,7 +27,7 @@
         "Port": ""
     },
     "Duplication": true,
-    "DuplicationURL": "http://app.fixiq.pro:7880/",
+    "DuplicationURL": "http://go-storage-notification-service-7880.fixiq-stage:7880",
     "DuplicateTimeout": 600,
     "DuplicatePause": 1,
     "DuplicateMethod": "notify"
