@@ -1,0 +1,19 @@
+name: Deploy to EKS
+# https://docs.github.com/en/actions/using-workflows/reusing-workflows
+# see https://docs.github.com/en/actions/using-workflows/reusing-workflows#using-a-matrix-strategy-with-a-reusable-workflow
+on:
+  push:
+    branches:
+      - stage
+  workflow_dispatch:
+jobs:
+  build-and-deploy:
+    #strategy:
+    #  matrix: [dev,dev2,stage,prod]
+    uses: Limpid-LLC/aws-deploy/.github/workflows/deploy-to-eks-shared.yml@main
+      #with:
+      #config-path: .env.master
+    #dir-to-upload: ./nginx/
+    #dir-to-upload: ./
+    #target: ${{ matrix.target }}
+    secrets: inherit
