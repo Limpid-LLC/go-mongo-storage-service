@@ -166,7 +166,8 @@ func (s Server) update(w http.ResponseWriter, r *http.Request, method string) {
 		return
 	}
 
-	request.Data["ch_time"] = time.Now().UnixMicro()
+	//Moved to code-below
+	//request.Data["ch_time"] = time.Now().UnixMicro()
 
 	if s.Config.UsePermissionAuth {
 		err := s.checkPermissionRequest(r, request.Collection, method, request.Select)
