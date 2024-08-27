@@ -17,6 +17,6 @@ spec:
     spec:
       containers:
       - name: ${SERVICE_NAME}-auth-microservice
-        image: ${IMAGE_NAME}-auth
+        image: ${IMAGE_NAME}
         ports:
 
